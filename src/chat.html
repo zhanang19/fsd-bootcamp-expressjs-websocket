@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatApp using Websocket</title>
+</head>
+
+<body>
+    <h1>ChatApp using Websocket</h1>
+    <p>Welcome, <span class="name"></span></p>
+    <form onsubmit="sendMessage(); return false;">
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button type="submit">Send</button>
+    </form>
+    <ul id="messages"></ul>
+
+    <script>
+        const input = document.getElementById('messageInput');
+
+        // Prompt the user for their name, default to random name
+        const name = prompt('Enter your name:') || "User" + Math.floor(Math.random() * 1000);
+        document.querySelector('.name').innerText = name;
+
+        const messageInput = document.getElementById('messageInput');
+        messageInput.focus();
+
+        // Connect to the WebSocket server
+        const ws = new WebSocket('ws://localhost:3000?name=' + name);
+
+        // Listen for messages from the server
+        ws.onmessage = (event) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = event.data;
+            document.getElementById('messages').appendChild(listItem);
+        };
+
+        // Send a message to the server
+        function sendMessage() {
+            ws.send(messageInput.value);
+            messageInput.value = '';
+            messageInput.focus();
+        }
+
+        // Close the WebSocket connection when the window is closed
+        window.onbeforeunload = () => ws.close();
+    </script>
+</body>
+
+</html>
